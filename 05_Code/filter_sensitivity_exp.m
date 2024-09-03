@@ -11,7 +11,9 @@ clc
 if ismac
      paths.parent    = fullfile(filesep,'Users','jossando','trabajo','image_filtering');
 else
-    paths.parent    = fullfile('D:','Jose Ossandon','CSF');
+    paths.parent    = fullfile('D:','Jose Ossandon','image_filtering');
+    addpath('D:\Jose Ossandon\csf_psi')
+    addpath('D:\Jose Ossandon\image_filtering\05_Code\external')
 end
 paths.imDIR     = fullfile(paths.parent,'KDEF_400_final_cut');
 paths.result    = fullfile(paths.parent, '06_RawData'); 
@@ -69,7 +71,7 @@ PARAMS.subject.gratingCutoff        = PARAMS.subject.visualAcuity*30;
 
 KbName('UnifyKeyNames');
 escapeKey = KbName('ESCAPE');
-Screen('Preference', 'SkipSyncTests', 1);
+Screen('Preference', 'SkipSyncTests', 0);
 Screen('Preference', 'ConserveVRAM',  4096)
 % ListenChar(2)
 AssertOpenGL;
