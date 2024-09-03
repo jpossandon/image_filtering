@@ -25,14 +25,14 @@ end
 imagen               = uint8(repmat(138.*ones(screenSize(2),screenSize(1)),1,1,3));
 colIndxs            = screenSize(2)./2+1-m/2:screenSize(2)./2+m/2;
 rowIndxs            = screenSize(1)./2+1-n/2:screenSize(1)./2+n/2;
-pixdegree           = 50;
+pixdegree           = 100;
 for rbg = 1:3
     imagen(colIndxs,rowIndxs,rbg) = thisImage(:,:,rbg);
    
 end
 clearvars -except CSDparams pixdegree screenSize imagen
 % 'normal' params
-CSFparams.p_f    = 5;
+CSFparams.p_f    = 4;
 CSFparams.gamma  = 200;
 CSFparams.delta  = 1;
 CSFparams.bw     = 2;
@@ -46,7 +46,7 @@ CSFparams.bw     = 2;
 % padding          = 138./255;
 
 %%
-optionsCSF.pixdegree        = pixdegree;
+optionsCSF.pixdegree        = 100%pixdegree;
 optionsCSF.padding          = [];
 optionsCSF.toplot           = {'mod_image','filters'};
 optionsCSF.BPfilter_spacing = 1;

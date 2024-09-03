@@ -9,27 +9,27 @@ clc
 % paths, experiment parameter and inputs
 
 if ismac
-     paths.parent    = fullfile(filesep,'Users','jossando','trabajo','CSF');
+     paths.parent    = fullfile(filesep,'Users','jossando','trabajo','image_filtering');
 else
     paths.parent    = fullfile('D:','Jose Ossandon','CSF');
 end
 paths.imDIR     = fullfile(paths.parent,'KDEF_400_final_cut');
 paths.result    = fullfile(paths.parent, '06_RawData'); 
 
-answer         = inputdlg({'Participant ID:','Participant decimal acuity:','CSF peak frequency:','CSF gamma:','CSF delta:','CSF bw:'},'Filter Sens.');
+answer         = inputdlg({'Participant ID:','Participant decimal acuity:','CSF peak frequency:','CSF gamma:','CSF delta:','CSF bw:','Screen distance:'},'Filter Sens.');
 fileMAT        = sprintf('FS%03d.mat',str2num(answer{1}));
 
 if isempty(answer(3))
 
-    PARAMS.conditions      = struct( 'name',{'same','gaussian_01cutoff','butterworth_custom_01cutoff_order3','butterworth_custom_01cutoff_order6'},...
-                                'type',{'same','gaussian_custom_cutoff','butterworth_custom_cutoff','butterworth_custom_cutoff'},...
-                                     'cutoff',{NaN,0.1,0.1,0.1},...
-                                     'order',{NaN,NaN,3,6});
+    PARAMS.conditions      = struct( 'name',{'same','gaussian','gaussian_01cutoff','butterworth_custom_01cutoff_order3','butterworth_custom_01cutoff_order6'},...
+                                'type',{'same','gaussian','gaussian_custom_cutoff','butterworth_custom_cutoff','butterworth_custom_cutoff'},...
+                                     'cutoff',{NaN,NaN,0.1,0.1,0.1},...
+                                     'order',{NaN,NaN,NaN,3,6});
 else
-PARAMS.conditions      = struct( 'name',{'same','gaussian_01cutoff','butterworth_custom_01cutoff_order3','butterworth_custom_01cutoff_order6','CSF_filter'},...
-                                'type',{'same','gaussian_custom_cutoff','butterworth_custom_cutoff','butterworth_custom_cutoff','CSF_filter'},...
-                                     'cutoff',{NaN,0.1,0.1,0.1,NaN},...
-                                     'order',{NaN,NaN,3,6,NaN});
+PARAMS.conditions      = struct( 'name',{'same','gaussian','gaussian_01cutoff','butterworth_custom_01cutoff_order3','butterworth_custom_01cutoff_order6','CSF_filter'},...
+                                'type',{'same','gaussian','gaussian_custom_cutoff','butterworth_custom_cutoff','butterworth_custom_cutoff','CSF_filter'},...
+                                     'cutoff',{NaN,NaN,0.1,0.1,0.1,NaN},...
+                                     'order',{NaN,NaN,NaN,3,6,NaN});
 end
 % my screen
 % PARAMS.setup.scr_wdth               = 51.7; % centimeters
@@ -39,10 +39,10 @@ PARAMS.setup.scr_wdth               = 52.7; % centimeters
 PARAMS.setup.scr_hght               = 29.5;
 
 
-PARAMS.setup.Dist_from_screen       = 150;
+PARAMS.setup.Dist_from_screen       = str2double(answer(7));
 PARAMS.setup.centerdotsize          = 15;
 
-PARAMS.images.targetStimSize        = [8 8]; % width,height in degrees
+PARAMS.images.targetStimSize        = [21 21]; % width,height in cms
 PARAMS.images.backgroundColor       = 138;
 
 
@@ -53,10 +53,11 @@ PARAMS.subject.CSFparams.delta      = str2double(answer(5));
 PARAMS.subject.CSFparams.bw         = str2double(answer(6));
 if ~isempty(answer{2})
     PARAMS.subject.visualAcuity     = str2double(answer(2));
-else
-    spfreqs                         = .1:.05:50;
-    [S]                             = csf(PARAMS.subject.CSFparams.p_f ,PARAMS.subject.CSFparams.gamma,PARAMS.subject.CSFparams.delta,PARAMS.subject.CSFparams.bw ,spfreqs);
-    PARAMS.subject.visualAcuity     = spfreqs(find(10.^S<1,1,'first'))/30;
+end
+    PARAMS.subject.spfreqs                         = .1:.05:50;
+    [PARAMS.subject.S]                             = csf(PARAMS.subject.CSFparams.p_f ,PARAMS.subject.CSFparams.gamma,PARAMS.subject.CSFparams.delta,PARAMS.subject.CSFparams.bw ,PARAMS.subject.spfreqs);
+if isempty(answer{2})
+    PARAMS.subject.visualAcuity     = PARAMS.subject.spfreqs(find(10.^PARAMS.subject.S<1,1,'first'))/30;
 end
 
 PARAMS.subject.gratingCutoff        = PARAMS.subject.visualAcuity*30;
@@ -92,10 +93,10 @@ clear TRIALS
 
 %%
 % trial randomization
-PARAMS.TRIALS.trialsPerCondition    = 30;
-PARAMS.TRIALS.trial_per_block       = 10;
+PARAMS.TRIALS.trialsPerCondition    = 24;
+PARAMS.TRIALS.trial_per_block       = 12;
 PARAMS.TRIALS.totalTrials           = PARAMS.TRIALS.trialsPerCondition.*length(PARAMS.conditions);
-PARAMS.TRIALS.imageDuration         = .3; %in seconds
+PARAMS.TRIALS.imageDuration         = .25; %in seconds
 PARAMS.TRIALS.ISI                   = .1; %period between the two images, in seconds
 PARAMS.TRIALS.centerJitter          = 20; %jitter around the center for image presentation
 TRIALS.trialCondition               = repmat({PARAMS.conditions.name},1,PARAMS.TRIALS.trialsPerCondition);
@@ -107,7 +108,8 @@ TRIALS.trialConditionFilterType     = TRIALS.trialConditionFilterType(permOrder)
 %%
 % calcualte image target dimension
 PARAMS.setup.pixels_per_degree  = round(PARAMS.setup.scr_pixwdth/(2*atan(PARAMS.setup.scr_wdth/2/PARAMS.setup.Dist_from_screen)*180/pi)); 
-PARAMS.images.targetSizeInPix   = round(PARAMS.images.targetStimSize.* PARAMS.setup.pixels_per_degree);
+% PARAMS.images.targetSizeInPix   = round(PARAMS.images.targetStimSize.* PARAMS.setup.pixels_per_degree);
+PARAMS.images.targetSizeInPix   = round(PARAMS.images.targetStimSize.* PARAMS.setup.scr_pixwdth./PARAMS.setup.scr_wdth);
 PARAMS.images.targetSizeInPix   = PARAMS.images.targetSizeInPix+mod(PARAMS.images.targetSizeInPix,2); % get evensize images
 PARAMS.images.filtSize           = [1000 1000];
 % images
@@ -146,8 +148,7 @@ Screen('FillRect',win,bkg_gray);
 DrawFormattedText(win, 'Image filtering sensitivity experiment\n\n (Press any key to start)','center','center');
 Screen('Flip', win);
 KbWait([], 2);
-% Screen('FillRect',win,bkg_gray);
-% Screen('Flip', win);
+
 flagscape =0;
 
 for trl = 1:length(TRIALS.trialCondition)
@@ -157,7 +158,7 @@ for trl = 1:length(TRIALS.trialCondition)
             Screen('FillRect',win,bkg_gray); 
             DrawFormattedText(win, sprintf('Block %d of %d finished\n\n (Press any key to continue)',floor(trl/PARAMS.TRIALS.trial_per_block),ceil(length(TRIALS.trialCondition)/PARAMS.TRIALS.trial_per_block)),'center','center');
             Screen('Flip', win);
-            WaitSecs(1)
+            WaitSecs(.1)
             KbWait([], 2);
         end
         DrawFormattedText(win, 'Wait for images upload ...\n\n ','center','center');
@@ -182,6 +183,10 @@ for trl = 1:length(TRIALS.trialCondition)
                     % setup this trial filter options
                         optionsFilter.cutoff    = [PARAMS.subject.gratingCutoff PARAMS.conditions(iXfilt).cutoff];
                         optionsFilter.order     = [];
+                    elseif strcmp(optionsFilter.filterType,'gaussian')
+                    % setup this trial filter options
+                        optionsFilter.cutoff    = [PARAMS.subject.gratingCutoff];
+                        optionsFilter.order     = [];
                     elseif strcmp(optionsFilter.filterType,'butterworth')
                         optionsFilter.cutoff    = PARAMS.subject.gratingCutoff;
                         optionsFilter.order     = PARAMS.conditions(iXfilt).order;
@@ -192,24 +197,17 @@ for trl = 1:length(TRIALS.trialCondition)
                     
                     if strcmp(TRIALS.imageOrder{1,trl+ims},'same')
                         [~, thisImage22] = image_filter(thisImage22,optionsFilter);
-%                         thisImage11 = thisImage;
                     else
                         [~, thisImage11] = image_filter(thisImage11,optionsFilter);
-%                         thisImage22 = thisImage;
                     end
                 elseif ismember(optionsFilter.filterType,{'CSF_filter'})
                     if strcmp(TRIALS.imageOrder{1,trl+ims},'same')
                         [thisImage22] = im_CSF_filter(thisImage22,PARAMS.subject.CSFparams,optionsCSF);
-%                         thisImage11 = thisImage;
                     else
                         [thisImage11] = im_CSF_filter(thisImage11,PARAMS.subject.CSFparams,optionsCSF);
-%                         thisImage22 = thisImage;
                     end
                 end
                     
-%             else
-%                 thisImage22 = thisImage;
-%                 thisImage11 = thisImage;
             end
             for rbg = 1:3
                 thisImage1(colIndxs-TRIALS.xjitter(1,trl+ims),rowIndxs-TRIALS.yjitter(1,trl+ims),rbg) = thisImage11(:,:,rbg);
@@ -220,7 +218,7 @@ for trl = 1:length(TRIALS.trialCondition)
         end
         DrawFormattedText(win, 'Get Ready!\n\n(Press any key to start) ','center','center');
         Screen('Flip', win);
-        WaitSecs(1)
+        WaitSecs(.1)
          KbWait([], 2);
          WaitSecs(2)  
     end
@@ -335,6 +333,6 @@ for ee = find(~ismember({PARAMS.conditions.name},{'same'}))
     % TRIALS.([thisCond '_dprime']) = dprime;
 
 end
-
+figure,plotCSF(PARAMS.subject.spfreqs,PARAMS.subject.S)
 save(fullfile(paths.result,fileMAT),'PARAMS','TRIALS')
 

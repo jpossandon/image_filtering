@@ -72,12 +72,12 @@ if ismember('filters',options.toplot)
     xlabel('Center Frequency (cyc/image)')
     ylabel('Magnitude')
 
-    figure, hold on
-    plot([X(mm/2+1,nn/2+2:end)],squeeze(filters(mm/2+1,nn/2+2:end,1:end)),'.-')
-    plot([X(mm/2+1,nn/2+2:end)],sum(squeeze(filters(mm/2+1,nn/2+2:end,1:end)),2),'.-')
-    % set(gca,'XTick',[0:exp_space:max_central_exp],'XTickLabels',[0:exp_space:max_central_exp])
-    xlabel('Center Frequency (cyc/image)')
-    ylabel('Magnitude')
+    % figure, hold on
+    % plot([X(mm/2+1,nn/2+2:end)],squeeze(filters(mm/2+1,nn/2+2:end,1:end)),'.-')
+    % plot([X(mm/2+1,nn/2+2:end)],sum(squeeze(filters(mm/2+1,nn/2+2:end,1:end)),2),'.-')
+    % % set(gca,'XTick',[0:exp_space:max_central_exp],'XTickLabels',[0:exp_space:max_central_exp])
+    % xlabel('Center Frequency (cyc/image)')
+    % ylabel('Magnitude')
 end
 clear X
 %%
@@ -157,9 +157,9 @@ if ismember('filtering_process',options.toplot)
     for it=1:2:length(exp_i)
         subplot('Position',subplotFull(2,itt,nrows,ncols,hmargin,vmargin,adj))
         if p>1
-            imshow(cat(3,imDC(1)+bandpass_images{1}(:,:,it),imDC(2)+bandpass_images{2}(:,:,it),imDC(3)+bandpass_images{3}(:,:,it)))
+            imshow(uint8(cat(3,imDC(1)+bandpass_images{1}(:,:,it),imDC(2)+bandpass_images{2}(:,:,it),imDC(3)+bandpass_images{3}(:,:,it))))
         else
-            imshow(imDC(1)+bandpass_images{1}(:,:,it))
+            imshow(uint8(imDC(1)+bandpass_images{1}(:,:,it)))
         end
         title(sprintf('%1.2f / %2.2f',2.^exp_i(it),2.^exp_i(it)./degperim))
         if itt==1, ylabel('Bandpass'),end
@@ -174,9 +174,9 @@ if ismember('filtering_process',options.toplot)
 
             subplot('Position',subplotFull(4,itt,nrows,ncols,hmargin,vmargin,adj))
             if p>1
-                imshow(.5+cat(3,thresholdedBP{1}(:,:,it-1),thresholdedBP{2}(:,:,it-1),thresholdedBP{3}(:,:,it-1)))
+                imshow(uint8(cat(3,imDC(1)+thresholdedBP{1}(:,:,it-1),imDC(2)+thresholdedBP{2}(:,:,it-1),imDC(3)+thresholdedBP{3}(:,:,it-1))))
             else
-                imshow(.5+thresholdedBP{1}(:,:,it-1))
+                imshow(uint8(imDC(1)+thresholdedBP{1}(:,:,it-1)))
             end
             if itt==2, ylabel('Bandpass >  CSF'),end
         end
