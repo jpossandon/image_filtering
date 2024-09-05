@@ -1,3 +1,13 @@
 
 /KDEF_400_final_cut
 /06_RawData
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
