@@ -218,7 +218,7 @@ if options.toplot==1
     elseif ee==3
         legend({'Original','0.607 Original','Low-pass','high-pass'})
     end
-    axis([0 10/freq_spacing -100 20])
+    axis([0 20/freq_spacing -100 20])
 
     xlabel('Spatial Frequency (cycles/degree)')
     ylabel('Power (dB)')
@@ -240,17 +240,21 @@ end
 
 %%
 % CHECK, this works
-% pixdegree = 40;
-% degperim  = 48;
+% pixdegree = 53;
+% degperim =  1000/53
 % x = 0:1./pixdegree:degperim-1./pixdegree;
-% ima = repmat(0.5*(1+sin(2*pi*3*x)),m,1);
+% ima = uint8(repmat(0.5*(1+sin(2*pi*3*x)),1000,1)*255);
 % figure,
 % imshow(ima)
-% set(gca, 'XTick',0:40:1920,'YTick',0:pixdegree:1080)
+% set(gca, 'XTick',0:pixdegree:1000,'YTick',0:pixdegree:1000)
 % axis on, grid on
 % 
-% [hpimage, lpimage]=jpimfourier(uint8(ima.*255),pixdegree,3,0);
-% figure, imshow(double(lpimage)./255)
-% set(gca, 'XTick',0:40:1920,'YTick',0:pixdegree:1080)
-% axis on, grid on
-% (max(lpimage(:))-min(lpimage(:)))/255 % this should be  ~ 0.607
+%  
+% options.pixxgrade   = pixdegree;
+% options.padding    = [];
+% options.cutoff      = [3 .1];
+% options.filterType  = 'gaussian_custom_cutoff';% 'butterworth';%
+% options.toplot      = 1; %   - 1 to toplot filtered images and the filters
+% options.computeRadialSpectra      = 1;
+% [hpimage, lpimage, filter, radialAvgFrq] =image_filter(ima,options);
+% figure, imshow(lpimage)

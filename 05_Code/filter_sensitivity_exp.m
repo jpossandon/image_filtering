@@ -71,7 +71,7 @@ PARAMS.subject.gratingCutoff        = PARAMS.subject.visualAcuity*30;
 
 KbName('UnifyKeyNames');
 escapeKey = KbName('ESCAPE');
-Screen('Preference', 'SkipSyncTests', 0);
+Screen('Preference', 'SkipSyncTests', 1);
 Screen('Preference', 'ConserveVRAM',  4096)
 % ListenChar(2)
 AssertOpenGL;
@@ -95,8 +95,8 @@ clear TRIALS
 
 %%
 % trial randomization
-PARAMS.TRIALS.trialsPerCondition    = 24;
-PARAMS.TRIALS.trial_per_block       = 12;
+PARAMS.TRIALS.trialsPerCondition    = 30;
+PARAMS.TRIALS.trial_per_block       = 15;
 PARAMS.TRIALS.totalTrials           = PARAMS.TRIALS.trialsPerCondition.*length(PARAMS.conditions);
 PARAMS.TRIALS.imageDuration         = .25; %in seconds
 PARAMS.TRIALS.ISI                   = .1; %period between the two images, in seconds
@@ -168,9 +168,9 @@ for trl = 1:length(TRIALS.trialCondition)
         theseImages = {};
         for ims = 0:PARAMS.TRIALS.trial_per_block-1
             thisImage        = imresize(imread(fullfile(paths.imDIR,TRIALS.imagesList{trl+ims})),PARAMS.images.targetSizeInPix);
-            thisImage1       = repmat(PARAMS.images.backgroundColor.*ones(PARAMS.setup.scr_pixhgt,PARAMS.setup.scr_pixwdth),1,1,3);
+            thisImage1       = uint8(repmat(PARAMS.images.backgroundColor.*ones(PARAMS.setup.scr_pixhgt,PARAMS.setup.scr_pixwdth),1,1,3));
             thisImage2       = thisImage1;
-            thisImage11       = repmat(PARAMS.images.backgroundColor.*ones(PARAMS.images.filtSize),1,1,3);
+            thisImage11       = uint8(repmat(PARAMS.images.backgroundColor.*ones(PARAMS.images.filtSize),1,1,3));
             thisImage22       = thisImage11;
             for rbg = 1:3
                 thisImage11(colIndxs1,rowIndxs1,rbg) = thisImage(:,:,rbg);
