@@ -21,17 +21,17 @@ paths.result    = fullfile(paths.parent, '06_RawData');
 answer         = inputdlg({'Participant ID:','Participant decimal acuity:','CSF peak frequency:','CSF gamma:','CSF delta:','CSF bw:','Screen distance:'},'Filter Sens.');
 fileMAT        = sprintf('FS%03d.mat',str2num(answer{1}));
 
-if isempty(answer(3))
+if isempty(answer{3})
 
-    PARAMS.conditions      = struct( 'name',{'same','gaussian','gaussian_01cutoff','butterworth_custom_01cutoff_order3','butterworth_custom_01cutoff_order6'},...
-                                'type',{'same','gaussian','gaussian_custom_cutoff','butterworth_custom_cutoff','butterworth_custom_cutoff'},...
-                                     'cutoff',{NaN,NaN,0.1,0.1,0.1},...
-                                     'order',{NaN,NaN,NaN,3,6});
+    PARAMS.conditions      = struct( 'name',{'same','gaussian','gaussian_01cutoffhalf','gaussian_01cutoff','butterworth_custom_01cutoff_order3','butterworth_custom_01cutoff_order6'},...
+                                'type',{'same','gaussian','gaussian_custom_cutoff','gaussian_custom_cutoff','butterworth_custom_cutoff','butterworth_custom_cutoff'},...
+                                     'cutoff',{NaN,NaN,0.1,0.1,0.1,0.1},...
+                                     'order',{NaN,NaN,NaN,NaN,3,6});
 else
-PARAMS.conditions      = struct( 'name',{'same','gaussian','gaussian_01cutoff','butterworth_custom_01cutoff_order3','butterworth_custom_01cutoff_order6','CSF_filter'},...
-                                'type',{'same','gaussian','gaussian_custom_cutoff','butterworth_custom_cutoff','butterworth_custom_cutoff','CSF_filter'},...
-                                     'cutoff',{NaN,NaN,0.1,0.1,0.1,NaN},...
-                                     'order',{NaN,NaN,NaN,3,6,NaN});
+PARAMS.conditions      = struct( 'name',{'same','gaussian','gaussian_01cutoffhalf','gaussian_01cutoff','butterworth_custom_01cutoff_order3','butterworth_custom_01cutoff_order6','CSF_filter'},...
+                                'type',{'same','gaussian','gaussian_custom_cutoff','gaussian_custom_cutoff','butterworth_custom_cutoff','butterworth_custom_cutoff','CSF_filter'},...
+                                     'cutoff',{NaN,NaN,0.1,0.1,0.1,0.1,NaN},...
+                                     'order',{NaN,NaN,NaN,NaN,3,6,NaN});
 end
 % my screen
 % PARAMS.setup.scr_wdth               = 51.7; % centimeters
@@ -178,12 +178,17 @@ for trl = 1:length(TRIALS.trialCondition)
             end
             
             if ~strcmp(TRIALS.trialCondition{trl+ims},'same')
+                
                  optionsFilter.filterType      = TRIALS.trialConditionFilterType{trl+ims};%
                  iXfilt                        = find(ismember({PARAMS.conditions.name},TRIALS.trialCondition{trl+ims}));
                 if ismember(optionsFilter.filterType,{'gaussian','gaussian_custom_cutoff','butterworth','butterworth_custom_cutoff'})
                     if strcmp(optionsFilter.filterType,'gaussian_custom_cutoff')
                     % setup this trial filter options
-                        optionsFilter.cutoff    = [PARAMS.subject.gratingCutoff PARAMS.conditions(iXfilt).cutoff];
+                        if strcmp(TRIALS.trialCondition{trl+ims},'gaussian_01cutoffhalf')
+                             optionsFilter.cutoff    = [PARAMS.subject.gratingCutoff./2 PARAMS.conditions(iXfilt).cutoff];
+                        else
+                            optionsFilter.cutoff    = [PARAMS.subject.gratingCutoff PARAMS.conditions(iXfilt).cutoff];
+                        end
                         optionsFilter.order     = [];
                     elseif strcmp(optionsFilter.filterType,'gaussian')
                     % setup this trial filter options
