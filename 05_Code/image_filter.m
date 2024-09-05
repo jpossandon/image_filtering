@@ -240,21 +240,30 @@ end
 
 %%
 % CHECK, this works
-% pixdegree = 53;
-% degperim =  1000/53
-% x = 0:1./pixdegree:degperim-1./pixdegree;
-% ima = uint8(repmat(0.5*(1+sin(2*pi*3*x)),1000,1)*255);
+% CHECK, this works
+% distance    = 80;   % centimeters
+% scrWdth     = 51.6;  % centimeters
+% resWdth     = 1920;  % pixels
+% screenAngle = atan(scrWdth./distance).*180/pi; % angle
+% pixdegree   = round(resWdth./screenAngle);         
+% 
+% imsize      =  1000; % pixels
+% % x           = 0:1./pixdegree:degperim-1./pixdegree; % degrees
+% x           = 0:1./pixdegree:imsize./pixdegree-1/pixdegree; % degrees
+% freqSin     = 3;  %cyc/degree
+% ima = uint8(repmat(0.5*(1+sin(2*pi*freqSin*x)),length(x),1)*255);
 % figure,
 % imshow(ima)
-% set(gca, 'XTick',0:pixdegree:1000,'YTick',0:pixdegree:1000)
-% axis on, grid on
-% 
-%  
-% options.pixxgrade   = pixdegree;
-% options.padding    = [];
-% options.cutoff      = [3 .1];
-% options.filterType  = 'gaussian_custom_cutoff';% 'butterworth';%
-% options.toplot      = 1; %   - 1 to toplot filtered images and the filters
-% options.computeRadialSpectra      = 1;
+% set(gca, 'XTick',0:round(pixdegree):imsize,'YTick',0:round(pixdegree):imsize)
+%  axis on, grid on
+% % 
+% %
+% options.pixxgrade               = pixdegree;
+% options.padding                 = [];
+% options.cutoff                  = [3 .1];
+% options.filterType              = 'gaussian_custom_cutoff';% 'butterworth';%
+% options.toplot                  = 1; %   - 1 to toplot filtered images and the filters
+% options.computeRadialSpectra    = 1;
 % [hpimage, lpimage, filter, radialAvgFrq] =image_filter(ima,options);
 % figure, imshow(lpimage)
+% title(sprintf('LP cutoff %d(%1.1f red) - (max-min)/255:%1.2f',options.cutoff(1),options.cutoff(2),double((max(lpimage(:))-min(lpimage(:))))./255))
