@@ -321,9 +321,9 @@ for ee = find(~ismember({PARAMS.conditions.name},{'same'}))
     FA       = sum(ismember(TRIALS.result(iX),'FA'));
     CR       = sum(ismember(TRIALS.result(iX),{'CR'}));
     FAp      = FA./(FA+CR);
-     if Hp==1
+     if FAp==1
         FAp=1-1/2/sum(iX);
-    elseif Hp==0
+    elseif FAp==0
         FAp= 1/2/sum(iX);
     end
     zFAp     =  norminv(FAp,0,1);
@@ -337,7 +337,7 @@ for ee = find(~ismember({PARAMS.conditions.name},{'same'}))
     fprintf('Diff.    %02d | %02d  | %d \n',FA,CR,FA+CR)
     fprintf('\nd'' = %1.2f\n',dprime)
     fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n')
-    % TRIALS.([thisCond '_dprime']) = dprime;
+    TRIALS.([thisCond '_dprime']) = dprime;
 
 end
 figure,plotCSF(PARAMS.subject.spfreqs,PARAMS.subject.S)
