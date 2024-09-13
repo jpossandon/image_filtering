@@ -64,6 +64,18 @@ elseif strcmp(options.filterType,'butterworth_custom_cutoff')
     ar          = options.cutoff(2); 
 end
 
+if ~isfield(options, 'padding')
+    options.padding = [];
+end
+
+if ~isfield(options, 'toplot')
+    options.toplot  = 0;
+end
+
+if ~isfield(options, 'computeRadialSpectra')
+    options.computeRadialSpectra = 0;
+end
+ 
 [m,n,p]=size(imagen);
 
 for depth=1:p
